@@ -7,6 +7,7 @@ RUN apt update && \
 	apt-get install -y manpages-dev && \
 	apt-get install -y cmake && \
 	apt-get install --no-install-recommends --yes kurento-media-server-dev && \
+    apt-get install -y libgstrtspserver-1.0-dev && \
 	cd rtsp-to-rtp-module && \
     mkdir build && cd build && \
 	cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && make install && \
