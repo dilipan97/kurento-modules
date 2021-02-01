@@ -40,7 +40,7 @@ enum
 struct _GstRtspToRtspEndpointPrivate {
     KmsLoop *loop;
     GstRTSPServer *server;
-    GstRTSPMediaFactoryURI *factory;
+    GstRTSPMediaFactory *factory;
     gint gst_server_id;
     GMutex base_time_mutex;
 
@@ -137,6 +137,7 @@ gst_rtsp_tp_rtsp_create_elements (GstRtspToRtspEndpoint *self)
 
     GstRTSPMountPoints *mounts;
     gchar *port;
+    gchar *element;
 
     g_mutex_init (&self->priv->base_time_mutex);
 
@@ -149,12 +150,19 @@ gst_rtsp_tp_rtsp_create_elements (GstRtspToRtspEndpoint *self)
     port = (gchar *) g_malloc (10);
     g_sprintf(port, "%d", self->priv->port);
 
+    element = g_strdup_printf ("('rtspsrc location=%s ! rtph264depay ! rtph264pay " 
+                               "config-interval=1 pt=96 name=pay0 ')", self->priv->camera_uri);
+
     gst_rtsp_server_set_address(self->priv->server, "0.0.0.0");
     gst_rtsp_server_set_service(self->priv->server, port);
 
-    self->priv->factory = gst_rtsp_media_factory_uri_new();
+    // self->priv->factory = gst_rtsp_media_factory_uri_new();
 
-    gst_rtsp_media_factory_uri_set_uri(self->priv->factory, self->priv->camera_uri);
+    // gst_rtsp_media_factory_uri_set_uri(self->priv->factory, self->priv->camera_uri);
+
+    self->priv->factory = gst_rtsp_media_factory_new();
+
+    gst_rtsp_media_factory_set_launch(self->priv->factory, element);
 
     gst_rtsp_media_factory_set_shared(GST_RTSP_MEDIA_FACTORY(self->priv->factory), TRUE);
 
@@ -170,6 +178,7 @@ gst_rtsp_tp_rtsp_create_elements (GstRtspToRtspEndpoint *self)
 
     g_print("stream ready at rtsp://127.0.0.1:%s/stream\n", port);
     g_free(port);
+    g_free(element);
 }
 
 static void

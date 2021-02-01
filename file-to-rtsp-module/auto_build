@@ -15,6 +15,6 @@ fi
 cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install && sudo cp src/server/libkmsfiletortspendpointmodule.so /usr/lib/x86_64-linux-gnu/kurento/modules/
 
 # Generate JS client project
-cmake .. -DGENERATE_JS_CLIENT_PROJECT=TRUE && cp -r js/. ../../kurento-tutorial-node/kurento-chroma/node_modules/kurento-module-filetortspendpoint
+# cmake .. -DGENERATE_JS_CLIENT_PROJECT=TRUE && cp -r js/. ../../kurento-tutorial-node/kurento-chroma/node_modules/kurento-module-filetortspendpoint
 
 printf "\n\n\nPlease restart Kurento media server to take effect!!\n----------------------------------------\n"

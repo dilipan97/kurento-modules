@@ -17,7 +17,7 @@ cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
     sudo cp src/server/libkmsrtsptortspendpointmodule.so /usr/lib/x86_64-linux-gnu/kurento/modules/
 
 # Generate JS client project
-cmake .. -DGENERATE_JS_CLIENT_PROJECT=TRUE && \
-  cp -r js/. ../../kurento-tutorial-node/kurento-chroma/node_modules/kurento-module-rtsptortspendpoint
+# cmake .. -DGENERATE_JS_CLIENT_PROJECT=TRUE && \
+#   cp -r js/. ../../kurento-tutorial-node/kurento-chroma/node_modules/kurento-module-rtsptortspendpoint
 
 printf "\n\n\nPlease restart Kurento media server to take effect!!\n----------------------------------------\n"

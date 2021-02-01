@@ -2,15 +2,14 @@ FROM kurento/kurento-media-server
  
 COPY . .
 
-RUN apt update && \
-	apt install -y build-essential && \
-	apt-get install -y manpages-dev && \
-	apt-get install -y cmake && \
-	apt-get install --no-install-recommends --yes kurento-media-server-dev && \
-    apt-get install -y libgstrtspserver-1.0-dev && \
-	cd rtsp-to-rtp-module && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential cmake && \
+    apt-get install -y --no-install-recommends kms-cmake-utils kms-core-dev && \
+    apt-get install -y --no-install-recommends kms-elements-dev kms-filters-dev && \
+    apt-get install -y --no-install-recommends libgstrtspserver-1.0-dev && \
+    cd rtsp-to-rtp-module && \
     mkdir build && cd build && \
-	cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && make install && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && make install && \
     cd ../../rtsp-to-rtsp-module && \
     mkdir build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make && make install && \
