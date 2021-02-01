@@ -6,7 +6,6 @@
 #include <gst/rtsp-server/rtsp-server.h>
 #include <glib/gstdio.h>
 #include <memory>
-#include <commons/kmsloop.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_file_to_rtsp_endpoint_debug_category);
 #define GST_CAT_DEFAULT gst_file_to_rtsp_endpoint_debug_category
@@ -36,7 +35,6 @@ enum
 };
 
 struct _GstFileToRtspEndpointPrivate {
-    KmsLoop *loop;
     GstRTSPServer *server;
     GstRTSPMediaFactory *factory;
     gint gst_server_id;
@@ -98,7 +96,6 @@ gst_file_to_rtsp_endpoint_dispose (GObject *object)
     pool_cleanup(self->priv->server);
     remove_map(self->priv->server);
 
-    g_clear_object(&self->priv->loop);
     g_clear_object(&self->priv->factory);
 
     gst_rtsp_server_client_filter (self->priv->server, client_filter, NULL);
@@ -164,8 +161,6 @@ gst_file_to_rtsp_create_elements (GstFileToRtspEndpoint *self)
     gchar *port;
 
     g_mutex_init (&self->priv->base_time_mutex);
-
-    self->priv->loop = kms_loop_new();
 
     self->priv->server = gst_rtsp_server_new ();
 

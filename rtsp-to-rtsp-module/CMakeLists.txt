@@ -47,9 +47,6 @@ pkg_check_modules(GSTREAMER_CHECK REQUIRED gstreamer-check-1.5>=${GST_REQUIRED})
 pkg_check_modules(GSTREAMER_RTSP REQUIRED gstreamer-rtsp-server-1.0>=${GST_REQUIRED})
 pkg_check_modules(KMSCORE REQUIRED kmscore)
 
-include(GenericFind)
-generic_find(LIBNAME KmsGstCommons REQUIRED)
-
 # Generate file "config.h"
 set(VERSION ${PROJECT_VERSION})
 set(PACKAGE ${PROJECT_NAME})

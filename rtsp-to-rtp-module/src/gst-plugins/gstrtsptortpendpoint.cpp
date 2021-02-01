@@ -5,7 +5,6 @@
 #include <gst/video/gstvideofilter.h>
 #include <glib/gstdio.h>
 #include <memory>
-#include <commons/kmsloop.h>
 #include <string.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_rtsp_to_rtp_endpoint_debug_category);
@@ -36,23 +35,13 @@ enum
     N_PROPERTIES
 };
 
-typedef struct _KmsPluginStats
-{
-    GstElement *src;
-    GstElement *sink;
-    GstElement *dec;
-    GstElement *enc;
-} KmsPluginStats;
-
 struct _GstRtspToRtpEndpointPrivate {
     GstElement *pipeline;
-    KmsLoop *loop;
     GMutex base_time_mutex;
 
     gchar *camera_uri;
     gint port;
 
-    KmsPluginStats stats;
 };
 
 /* pad templates */
@@ -75,8 +64,6 @@ static void
 gst_rtsp_to_rtp_endpoint_dispose (GObject *object)
 {
     GstRtspToRtpEndpoint *self = GST_RTSP_TO_RTP_ENDPOINT(object);
-
-    g_clear_object(&self->priv->loop);
 
     if(self->priv->pipeline != NULL)
     {
@@ -109,108 +96,27 @@ gst_rtsp_to_rtp_endpoint_finalize (GObject *object)
 }
 
 static void
-pad_added_handler(GstElement *src, GstPad *new_pad, GstRtspToRtpEndpoint *self)
-{
-    GstElement *link_element = GST_ELEMENT(self->priv->stats.dec);
-    GstPad *sink_pad;
-    sink_pad = gst_element_get_static_pad(link_element, "sink");
-    GST_INFO("Dynamic pad created and linked\n");
-    gst_pad_link(new_pad, sink_pad);
-    gst_object_unref(sink_pad);
-}
-
-static gboolean
-handle_message(GstBus *bus, GstMessage *msg, GstRtspToRtpEndpoint *self)
-{
-    GError *err;
-    gchar *debug_info;
-
-    switch (GST_MESSAGE_TYPE(msg))
-    {
-        case GST_MESSAGE_ERROR:
-            gst_message_parse_error(msg, &err, &debug_info);
-            GST_ERROR("Error received from element %s: %s\n",
-                      GST_OBJECT_NAME(msg->src), err->message);
-            GST_DEBUG("Debugging information: %s \n", debug_info ? debug_info : "none ");
-            g_clear_error(&err);
-            g_free(debug_info);
-            g_clear_object(&self->priv->loop);
-            break;
-        case GST_MESSAGE_EOS:
-            GST_INFO("EOS received on OBJ NAME %s \n", GST_OBJECT_NAME(msg->src));
-            g_clear_object(&self->priv->loop);
-            break;
-        case GST_MESSAGE_STATE_CHANGED:
-            if (GST_MESSAGE_SRC(msg) == GST_OBJECT(self->priv->pipeline))
-            {
-                GstState old_state, new_state, pending_state;
-                gst_message_parse_state_changed(msg, &old_state, &new_state, &pending_state);
-                GST_INFO("Pipeline state changed from %s to %s: \n",
-                         gst_element_state_get_name(old_state), gst_element_state_get_name(new_state));
-                if(strcmp(gst_element_state_get_name(new_state), "READY") == 0) {
-                    if(strcmp(gst_element_state_get_name(old_state), "PAUSED") == 0) {
-                        g_print("RTP streaming STOPPED..\n");
-                    }
-                    else {
-                        g_print("RTP streaming STARTED..\n");
-                    }
-                }
-            }
-            break;
-        default:
-            break;
-    }
-    return TRUE;
-}
-
-static void
 gst_rtsp_to_rtp_create_elements (GstRtspToRtpEndpoint *self)
 {
     GstBus *bus;
-    GstStateChangeReturn state_returned;
+    // GstMessage *msg;
 
     g_mutex_init (&self->priv->base_time_mutex);
 
-    self->priv->loop = kms_loop_new();
+    self->priv->pipeline = gst_parse_launch(
+        "rtspsrc location=rtsp://195.46.114.132/live/ch00_0 ! rtph264depay ! rtph264pay config-interval=1 pt=96 ! udpsink host=127.0.0.1 port=6060 sync=false",
+        nullptr);
 
-    self->priv->stats.src = gst_element_factory_make("rtspsrc", "src");
-    self->priv->stats.sink = gst_element_factory_make("udpsink", "sink");
-    self->priv->stats.dec = gst_element_factory_make("rtph264depay", "payload-decode");
-    self->priv->stats.enc = gst_element_factory_make("rtph264pay", "payload-encode");
-    self->priv->pipeline = gst_pipeline_new("stream-pipeline");
-
-    if (!self->priv->pipeline || !self->priv->stats.src || !self->priv->stats.sink ||
-        !self->priv->stats.dec || !self->priv->stats.enc)
-    {
-        GST_ERROR("Not all elements could be created.\n");
-        return;
-    }
-
-    gst_bin_add_many(GST_BIN(self->priv->pipeline), self->priv->stats.src,
-                     self->priv->stats.sink, self->priv->stats.dec, self->priv->stats.enc, NULL);
-
-    g_object_set(self->priv->stats.src, "location", self->priv->camera_uri, "name", "src", NULL);
-    g_object_set(self->priv->stats.sink, "host", "127.0.0.1", "port", self->priv->port, NULL);
-    g_object_set(self->priv->stats.enc, "config-interval", 1, "pt", 96, NULL);
-
-    gst_element_link_many(self->priv->stats.dec, self->priv->stats.enc,
-                          self->priv->stats.sink, NULL);
-
-    /* Connect to signals */
-    g_signal_connect(self->priv->stats.src, "pad-added",
-                     G_CALLBACK(pad_added_handler), self);
+    gst_element_set_state(self->priv->pipeline, GST_STATE_PLAYING);
 
     bus = gst_element_get_bus(self->priv->pipeline);
-    gst_bus_add_watch(bus, (GstBusFunc)handle_message, self);
 
-    state_returned = gst_element_set_state(self->priv->pipeline, GST_STATE_PLAYING);
+    // msg = gst_bus_timed_pop_filtered(bus, GST_CLOCK_TIME_NONE,
+    //                                  static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
 
-    if (state_returned == GST_STATE_CHANGE_FAILURE)
-    {
-        GST_ERROR("Unable to set the pipeline to the playing state.\n ");
-        gst_object_unref(self->priv->pipeline);
-        return;
-    }
+    g_print("rtp streaming started!!");
+    // if (msg != nullptr)
+    //     gst_message_unref(msg);
 
     gst_object_unref(bus);
 }

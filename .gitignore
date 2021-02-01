@@ -3,19 +3,24 @@
 file-to-rtsp-module/debian
 rtsp-to-rtp-module/debian
 rtsp-to-rtsp-module/debian
+rtmp-to-rtsp-module/debian
 
 file-to-rtsp-module/build
 rtsp-to-rtp-module/build
 rtsp-to-rtsp-module/build
+rtmp-to-rtsp-module/build
 
 file-to-rtsp-module/.idea
 rtsp-to-rtp-module/.idea
 rtsp-to-rtsp-module/.idea
+rtmp-to-rtsp-module/.idea
 
 file-to-rtsp-module/auto_build~
 rtsp-to-rtp-module/auto_build~
 rtsp-to-rtp-module/auto_build~
+rtmp-to-rtsp-module/auto_build~
 
 file-to-rtsp-module/cmake-build-debug
 rtsp-to-rtp-module/cmake-build-debug
 rtsp-to-rtsp-module/cmake-build-debug
+rtmp-to-rtsp-module/cmake-build-debug

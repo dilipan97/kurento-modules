@@ -7,7 +7,6 @@
 #include <gst/rtsp-server/rtsp-media-factory-uri.h>
 #include <glib/gstdio.h>
 #include <memory>
-#include <commons/kmsloop.h>
 
 GST_DEBUG_CATEGORY_STATIC (gst_rtsp_to_rtsp_endpoint_debug_category);
 #define GST_CAT_DEFAULT gst_rtsp_to_rtsp_endpoint_debug_category
@@ -38,7 +37,6 @@ enum
 };
 
 struct _GstRtspToRtspEndpointPrivate {
-    KmsLoop *loop;
     GstRTSPServer *server;
     GstRTSPMediaFactory *factory;
     gint gst_server_id;
@@ -100,7 +98,6 @@ gst_rtsp_to_rtsp_endpoint_dispose (GObject *object)
     pool_cleanup(self->priv->server);
     remove_map(self->priv->server);
 
-    g_clear_object(&self->priv->loop);
     g_clear_object(&self->priv->factory);
 
     gst_rtsp_server_client_filter (self->priv->server, client_filter, NULL);
@@ -141,8 +138,6 @@ gst_rtsp_tp_rtsp_create_elements (GstRtspToRtspEndpoint *self)
 
     g_mutex_init (&self->priv->base_time_mutex);
 
-    self->priv->loop = kms_loop_new();
-
     self->priv->server = gst_rtsp_server_new();
 
     mounts = gst_rtsp_server_get_mount_points(self->priv->server);
@@ -155,10 +150,6 @@ gst_rtsp_tp_rtsp_create_elements (GstRtspToRtspEndpoint *self)
 
     gst_rtsp_server_set_address(self->priv->server, "0.0.0.0");
     gst_rtsp_server_set_service(self->priv->server, port);
-
-    // self->priv->factory = gst_rtsp_media_factory_uri_new();
-
-    // gst_rtsp_media_factory_uri_set_uri(self->priv->factory, self->priv->camera_uri);
 
     self->priv->factory = gst_rtsp_media_factory_new();
 

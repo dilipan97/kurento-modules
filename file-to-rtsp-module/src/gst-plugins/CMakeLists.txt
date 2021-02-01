@@ -2,7 +2,6 @@ include_directories(
   ${GSTREAMER_INCLUDE_DIRS}
   ${GSTREAMER_VIDEO_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${KmsGstCommons_INCLUDE_DIRS}
   ${GSTREAMER_RTSP_INCLUDE_DIRS}
 )
 
@@ -20,7 +19,6 @@ endif()
 target_link_libraries(filetortspendpoint
   ${GSTREAMER_LIBRARIES}
   ${GSTREAMER_VIDEO_LIBRARIES}
-  ${KmsGstCommons_LIBRARIES}
   ${GSTREAMER_RTSP_LIBRARIES}
 )
 

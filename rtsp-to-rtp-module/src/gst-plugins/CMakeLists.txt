@@ -1,5 +1,4 @@
 include_directories(
-  ${KmsGstCommons_INCLUDE_DIRS}
   ${GSTREAMER_INCLUDE_DIRS}
   ${GSTREAMER_VIDEO_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -17,7 +16,6 @@ if(SANITIZERS_ENABLED)
 endif()
 
 target_link_libraries(rtsptortpendpoint
-  ${KmsGstCommons_LIBRARIES}
   ${GSTREAMER_LIBRARIES}
   ${GSTREAMER_VIDEO_LIBRARIES}
 )
