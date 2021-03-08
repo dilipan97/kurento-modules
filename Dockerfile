@@ -1,8 +1,9 @@
 FROM kurento/kurento-media-server
- 
+
 COPY . .
 
-RUN apt-get update && \
+RUN mv SdpEndpoint.conf.json /etc/kurento/modules/kurento && \
+    apt-get update && \
     apt-get install -y --no-install-recommends build-essential cmake && \
     apt-get install -y --no-install-recommends kms-cmake-utils kms-core-dev && \
     apt-get install -y --no-install-recommends kms-elements-dev kms-filters-dev && \
