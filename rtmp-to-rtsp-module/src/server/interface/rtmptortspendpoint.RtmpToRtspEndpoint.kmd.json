@@ -1,0 +1,32 @@
+{
+  "remoteClasses": [
+    {
+      "name": "RtmpToRtspEndpoint",
+      "extends": "Filter",
+      "doc": "RtmpToRtspEndpoint interface. Documentation about the module",
+      "constructor": {
+        "doc": "Create an element",
+        "params": [
+          {
+            "name": "mediaPipeline",
+            "doc": "the parent :rom:cls:`MediaPipeline`",
+            "type": "MediaPipeline",
+            "final": true
+          },
+          {
+            "name": "rtmpUri",
+            "doc": "URI pointing to the video. It has to be accessible to the KMS process.",
+            "type": "String",
+            "defaultValue": ""
+          },
+          {
+            "name": "port",
+            "doc": "The port in which the rtsp streams are available.",
+            "type": "int",
+            "defaultValue": 0
+          }
+        ]
+      }
+    }
+  ]
+}
