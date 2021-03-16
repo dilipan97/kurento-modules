@@ -1,4 +1,4 @@
-FROM kurento/kurento-media-server
+FROM kurento/kurento-media-server:6.16.0
 
 COPY . .
 
